@@ -83,6 +83,7 @@ function getPlayerData(elements) {
 		    headers: {
 		        Cookie: 'COOKIE=TEST',
 		        Origin: 'http://bandcamp.com',
+		        //TODO: Need to dynamically populate referer once I find new embeds
 		        referer: 'https://bandcamp.com/EmbeddedPlayer.html/ref=http%253A%252F%252Fwww.topshelfrecords.com%252Fverse/album=529024372/size=large/bgcol=ffffff/linkcol=0687f5/artwork=small/transparent=true/tracklist=true/tracks=1819217714,1855758303,1486711082,40157989,2785178383,4152023906,1332687952,1675960477,1104903984,2263844213,1667168004/esig=5f2d506f99e44e0c9a65b0060f1fa743/rsig=6fe931562a092b7a3438be36c1348da5/'
 		    },
 		    encoding: null
@@ -91,6 +92,7 @@ function getPlayerData(elements) {
 
 		var file = "media/" + tracknum + "-" + title + ".mp3";
 
+		
 		download(options, file);
 	});
 }
@@ -139,10 +141,12 @@ function runBCscrape(u){
 	                	var $ = window.jQuery || window.$;
 						document = window.document;
 
+						/*
 						if(typeof $ == 'undefined')
 				        console.log('JQUERY NOT LOADED')
 				      	else
 				        console.log('JQUERY LOADED')
+						*/
 
 				    	var tracks = window.playerdata.tracks;
 
@@ -182,10 +186,12 @@ jsdom.env({
                 	var $ = window.jQuery || window.$;
 					document = window.document;
 
+					/*
 					if(typeof $ == 'undefined')
 			        console.log('JQUERY NOT LOADED')
 			      	else
 			        console.log('JQUERY LOADED')
+					*/
 
 			    	iframeSrc = $('iframe').attr('src');
 

@@ -1,0 +1,22 @@
+{
+  "name": "music-scraper",
+  "version": "1.0.0",
+  "description": "Node based site and music scraper",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jbeatteay/music-scraper.git"
+  },
+  "author": "Jason Beatteay",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jbeatteay/music-scraper/issues"
+  },
+  "homepage": "https://github.com/jbeatteay/music-scraper#readme",
+  "dependencies": {
+    "jsdom": "^11.1.0"
+  }
+}

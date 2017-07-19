@@ -6,6 +6,8 @@ try {
 };
 var request = require('https');
 var fs = require("fs");
+var url = require('url');
+var Q = require('q');
 var Console = console.constructor;
 var iframeSrc;
 var targetUrl;
@@ -15,6 +17,9 @@ var targetUrl;
 var args = process.argv.slice(2);
 var url = args[0];
 
+
+var logsDir = __dirname + '/logs';
+var mediaDir = __dirname + '/media';
 
 // redirect global console object to log file
 function logfile(file) {
@@ -28,20 +33,49 @@ function logfile(file) {
 
 module.exports = logfile;
 
-//save the music
+//save the music, took this function from the interet. This will help if the URL is redirected.
+function download(uri, filename) {
+
+    var protocol = "https";
+    var deferred = Q.defer();
+    var onError = function (e) {
+        fs.unlink(filename);
+        deferred.reject(e);
+    }
+    require(protocol).get(uri, function(response) {
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+            var fileStream = fs.createWriteStream(filename);
+            fileStream.on('error', onError);
+            fileStream.on('close', deferred.resolve);
+            response.pipe(fileStream);
+        } else if (response.headers.location) {
+            deferred.resolve(download(response.headers.location, filename));
+        } else {
+            deferred.reject(new Error(response.statusCode + ' ' + response.statusMessage));
+        }
+    }).on('error', onError);
+    return deferred.promise;
+};
+
+//get the music data
 function getPlayerData(elements) {
 
+	if (!fs.existsSync(mediaDir)) {
+	    fs.mkdirSync(mediaDir, 0744);
+	}
 
 	elements.forEach( function (arrayItem){
 
+		var tracknum = arrayItem.tracknum + 1;
 		var title = arrayItem.title;
 		var fileUrl = arrayItem.file['mp3-128'];
-		var tracknum = arrayItem.tracknum + 1;
+		
 
 		//Easy way to get hostname, pathname and url params!
 		var parser = document.createElement('a');
 		parser.href = fileUrl;
 		console.log(parser.hostname + parser.pathname + parser.search)
+
 
 		var options = {
 		    host: parser.hostname,
@@ -54,20 +88,10 @@ function getPlayerData(elements) {
 		    encoding: null
 		};
 
-		var file = fs.createWriteStream("media/" + tracknum + "-" + title + ".mp3");
 
-		request.get(options, (res) => {
-		  console.log(`Got response: ${res.statusCode}`);
+		var file = "media/" + tracknum + "-" + title + ".mp3";
 
-		  res.pipe(file);
-		  // consume response body
-		  res.resume();
-
-		}).on('error', (e) => {
-		  console.log(`Got error: ${e.message}`);
-		});
-
-
+		download(options, file);
 	});
 }
 
@@ -105,6 +129,12 @@ function runBCscrape(u){
 				        callback(err);
 				      }
 					
+					if (!fs.existsSync(logsDir)) {
+						    fs.mkdirSync(logsDir, 0744);
+						}
+
+
+
 				    	global.window = window;
 	                	var $ = window.jQuery || window.$;
 						document = window.document;
@@ -116,9 +146,11 @@ function runBCscrape(u){
 
 				    	var tracks = window.playerdata.tracks;
 
-				    	//logfile("logs/log.txt");
+				    	
+						logfile("logs/log.txt");
 
 	                	getPlayerData(tracks) 
+
 	                	console.log('closed')
 	                	window.close();
 	                  

@@ -28,19 +28,17 @@ function logfile(file) {
 
 module.exports = logfile;
 
+//save the music
 function getPlayerData(elements) {
 
 
 	elements.forEach( function (arrayItem){
-		//console.log(arrayItem.artist)
-		//console.log(arrayItem.title)
-		//console.log(arrayItem.file['mp3-128'])
-
 
 		var title = arrayItem.title;
 		var fileUrl = arrayItem.file['mp3-128'];
 		var tracknum = arrayItem.tracknum + 1;
 
+		//Easy way to get hostname, pathname and url params!
 		var parser = document.createElement('a');
 		parser.href = fileUrl;
 		console.log(parser.hostname + parser.pathname + parser.search)
@@ -56,7 +54,7 @@ function getPlayerData(elements) {
 		    encoding: null
 		};
 
-		var file = fs.createWriteStream(tracknum + "-" + title + ".mp3");
+		var file = fs.createWriteStream("media/" + tracknum + "-" + title + ".mp3");
 
 		request.get(options, (res) => {
 		  console.log(`Got response: ${res.statusCode}`);
@@ -82,6 +80,7 @@ function getTargetUrl(element) {
 	}
 }
 
+//bandcamp iframe scrape
 function runBCscrape(u){
 
 	jsdom.env({
@@ -128,6 +127,8 @@ function runBCscrape(u){
 
 }
 
+
+//iniate first scrape
 jsdom.env({
         url: url,
         scripts: ["http://code.jquery.com/jquery-latest.min.js"],

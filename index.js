@@ -47,6 +47,7 @@ function download(uri, filename) {
             var fileStream = fs.createWriteStream(filename);
             fileStream.on('error', onError);
             fileStream.on('close', deferred.resolve);
+            console.log('downloading...')
             response.pipe(fileStream);
         } else if (response.headers.location) {
             deferred.resolve(download(response.headers.location, filename));
@@ -68,14 +69,18 @@ function getPlayerData(elements) {
 
 		var tracknum = arrayItem.tracknum + 1;
 		var title = arrayItem.title;
-		var fileUrl = arrayItem.file['mp3-128'];
+		var fileUrl;
+		if(arrayItem.file != null){
+			console.log(arrayItem.file)
+			fileUrl = arrayItem.file['mp3-128'];
+			
+		}
 		
 
 		//Easy way to get hostname, pathname and url params!
 		var parser = document.createElement('a');
 		parser.href = fileUrl;
-		console.log(parser.hostname + parser.pathname + parser.search)
-
+		
 
 		var options = {
 		    host: parser.hostname,
@@ -83,8 +88,8 @@ function getPlayerData(elements) {
 		    headers: {
 		        Cookie: 'COOKIE=TEST',
 		        Origin: 'http://bandcamp.com',
-		        //TODO: Need to dynamically populate referer once I find new embeds
-		        referer: 'https://bandcamp.com/EmbeddedPlayer.html/ref=http%253A%252F%252Fwww.topshelfrecords.com%252Fverse/album=529024372/size=large/bgcol=ffffff/linkcol=0687f5/artwork=small/transparent=true/tracklist=true/tracks=1819217714,1855758303,1486711082,40157989,2785178383,4152023906,1332687952,1675960477,1104903984,2263844213,1667168004/esig=5f2d506f99e44e0c9a65b0060f1fa743/rsig=6fe931562a092b7a3438be36c1348da5/'
+		        //TODO: Need to check if iframeSrc suffices as a header refere by testing other embeds
+		        referer: iframeSrc
 		    },
 		    encoding: null
 		};
@@ -111,7 +116,7 @@ function runBCscrape(u){
 
 	jsdom.env({
 	        url: u,
-			referer: 'http://bandcamp.com/EmbeddedPlayer.html/ref=http%253A%252F%252Fwww.topshelfrecords.com%252Fverse/album=529024372/size=large/bgcol=ffffff/linkcol=0687f5/artwork=small/transparent=true/tracklist=true/tracks=1819217714,1855758303,1486711082,40157989,2785178383,4152023906,1332687952,1675960477,1104903984,2263844213,1667168004/esig=5f2d506f99e44e0c9a65b0060f1fa743/rsig=6fe931562a092b7a3438be36c1348da5/',
+			referer: iframeSrc,
 	        scripts: ["http://code.jquery.com/jquery-latest.min.js"],
 	        features:{
 		      FetchExternalResources: ["script"],
@@ -151,7 +156,7 @@ function runBCscrape(u){
 				    	var tracks = window.playerdata.tracks;
 
 				    	
-						logfile("logs/log.txt");
+						//logfile("logs/log.txt");
 
 	                	getPlayerData(tracks) 
 
@@ -168,7 +173,7 @@ function runBCscrape(u){
 jsdom.env({
         url: url,
         scripts: ["http://code.jquery.com/jquery-latest.min.js"],
-        referer: 'http://bandcamp.com/EmbeddedPlayer.html/ref=http%253A%252F%252Fwww.topshelfrecords.com%252Fverse/album=529024372/size=large/bgcol=ffffff/linkcol=0687f5/artwork=small/transparent=true/tracklist=true/tracks=1819217714,1855758303,1486711082,40157989,2785178383,4152023906,1332687952,1675960477,1104903984,2263844213,1667168004/esig=5f2d506f99e44e0c9a65b0060f1fa743/rsig=6fe931562a092b7a3438be36c1348da5/',
+        referer: iframeSrc,
 	    onload: function(err, window) {
 	      console.log('*******onload')
 	    },
